@@ -128,7 +128,9 @@ function evaluate_addsub(expression, ii) {
 
 function evaluate(expression) {
    var result = evaluate_addsub(expression, 0);
-   return result.value + "\n" + result.string;
+   return result.value + "\n" + result.string +
+          "\nCompare to: <a href=\"https://www.google.com/search?q=" +
+          encodeURIComponent(expression) + "\">" + expression + "</a>";
 }
 
 // -------------------------------------------------------------------- //
