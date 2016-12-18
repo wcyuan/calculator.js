@@ -3,13 +3,13 @@
 	<script type="text/javascript" src="calculator.js"></script>
 </head>
 <body>
-    <p>
+    <form action="submit">
 	<input type="text" id="a" class="in">
-	<hr>
-	result: <input type="text" id="target" class="in">
-	<br>
 	<button type="button" id="solve">Solve</button>
-	</p>
+    </form>
+	<hr>
+    result: <div id="target" class="in"></div>
+	<br>
 	
 	<script type="text/javascript">
 	main();
