@@ -40,11 +40,10 @@ function evaluate_unsigned_number(expression, ii) {
         }
         jj = kk;
     }
-    console.log(ii);
-    console.log(jj);
-    console.log(expression.substr(ii, jj-ii));
-    return {'value': parseFloat(expression.substr(ii, jj-ii)),
-            'position': consumeWhitespace(expression, jj)};
+    var string = expression.substr(ii, jj-ii);
+    return {'value': parseFloat(string),
+            'position': consumeWhitespace(expression, jj),
+            'string' : string};
 }
 
 function evaluate_paren(expression, ii) {
@@ -57,6 +56,7 @@ function evaluate_paren(expression, ii) {
         throw "Missing closing paren" + expression.substr(ii);
     }
     result.position = consumeWhitespace(expression, result.position + 1);
+    result.string = "(" + result.string + ")";
     return result;
 }
 
@@ -66,8 +66,9 @@ function evaluate_exponent(expression, ii) {
     result.position = consumeWhitespace(expression, result.position);
     if (expression.charAt(result.position) == "^") {
         var exponent = evaluate_signed(expression, result.position + 1);
-        result.value = result.value ^ exponent.value;
+        result.value = Math.pow(result.value, exponent.value);
         result.position = exponent.position;
+        result.string = "(" + result.string + " ^ " + exponent.string + ")";
     }
     return result;
 }
@@ -82,6 +83,7 @@ function evaluate_signed(expression, ii) {
     result.position = consumeWhitespace(expression, result.position);
     if (is_negated) {
         result.value = - result.value;
+        result.string = "(-" + result.string + ")";
     }
     return result;
 }
@@ -92,12 +94,14 @@ function evaluate_multdiv(expression, ii) {
     result.position = consumeWhitespace(expression, result.position);
     while ((expression.charAt(result.position) == "*" ||
             expression.charAt(result.position) == "/")) {
+        var op = expression.charAt(result.position);
         var new_result = evaluate_signed(expression, result.position + 1);
-        if (expression.charAt(result.position) == "*") {
+        if (op == "*") {
             result.value *= new_result.value;
-        } else if (expression.charAt(result.position) == "/") {
+        } else {
             result.value /= new_result.value;
         }
+        result.string = "(" + result.string + " " + op + " " + new_result.string + ")";
         result.position = new_result.position;
     }
     return result;
@@ -109,19 +113,22 @@ function evaluate_addsub(expression, ii) {
     result.position = consumeWhitespace(expression, result.position);
     while ((expression.charAt(result.position) == "+" ||
             expression.charAt(result.position) == "-")) {
+        var op = expression.charAt(result.position);
         var new_result = evaluate_multdiv(expression, result.position + 1);
         if (expression.charAt(result.position) == "+") {
             result.value += new_result.value;
         } else if (expression.charAt(result.position) == "-") {
             result.value -= new_result.value;
         }
+        result.string = "(" + result.string + " " + op + " " + new_result.string + ")";
         result.position = new_result.position;
     }
     return result;
 }
 
 function evaluate(expression) {
-   return evaluate_addsub(expression, 0).value;
+   var result = evaluate_addsub(expression, 0);
+   return result.value + "\n" + result.string;
 }
 
 // -------------------------------------------------------------------- //
