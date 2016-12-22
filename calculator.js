@@ -127,10 +127,20 @@ function evaluate_addsub(expression, ii) {
 }
 
 function evaluate(expression) {
-   var result = evaluate_addsub(expression, 0);
-   return result.value + "\n" + result.string +
-          "\nCompare to: <a href=\"https://www.google.com/search?q=" +
-          encodeURIComponent(expression) + "\">" + expression + "</a>";
+    var result = evaluate_addsub(expression, 0);
+    var msg = "";
+    if (result.position == 0) {
+        throw "Invalid expression: " + expression;
+    }
+    if (result.position < expression.length) {
+        msg = "Extra characters after the expression: " +
+              expression.substr(result.position);
+    }
+    expression = expression.substr(0, result.position);
+    return result.value + "\n" + result.string +
+           "\n" + msg +
+           "\nCompare to: <a href=\"https://www.google.com/search?q=" +
+           encodeURIComponent(expression) + "\">" + expression + "</a>";
 }
 
 // -------------------------------------------------------------------- //
@@ -156,8 +166,12 @@ function main() {
     var solve_button = document.getElementById("solve");
     addEventListener(solve_button, 'click', function() {
         var input = document.getElementById("a");
-        var result = evaluate(input.value);
-        display(result);
+        try {
+            var result = evaluate(input.value);
+            display(result);
+        } catch(err) {
+            display(err);
+        }
     });
 }
 
