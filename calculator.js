@@ -27,18 +27,46 @@ function consumeDigits(expression, ii) {
     return consumeRegexp(expression, ii, /\d/).position;
 }
 
+// The error checking is a bit involved, this really ought to have tests
+// (as should all the functions)
+// These expressions are ok:
+//   0
+//   0.
+//   .0
+//   .0000
+//   0.0000
+//   1
+//   1.2
+// These expressions aren't ok:
+//   .
+//   00
+//   01
+//   01.
+//   01.0
+//   <empty string>
 function evaluate_unsigned_number(expression, ii) {
     ii = consumeWhitespace(expression, ii);
-    if (!expression.charAt(ii).match("[1-9]")) {
+    var jj = consumeDigits(expression, ii);
+    // Don't accept leading zeros, unless that is the only digit
+    if (jj - ii > 1 && !expression.charAt(ii).match("[1-9]")) {
         throw "Invalid Number: " + expression.substr(ii);
     }
-    var jj = consumeDigits(expression, ii);
+    // Note that it's ok for the part before the decimal to be empty, if there's a decimal.
     if (expression.charAt(jj) == ".") {
         var kk = consumeDigits(expression, jj + 1);
-        if (kk == jj) {
-            throw "Invalid Number: " + expression.substr(ii);
+        if (kk == jj + 1) {
+            // Google accepts numbers with no digit after the decimal, so we should too.
+            // However, Google doesn't accept numbers with no digits before and after
+            // the decimal (i.e., a decimal point by itself)
+            if (jj == ii) {
+                throw "Invalid Number: " + expression.substr(ii);
+            }
         }
         jj = kk;
+    } 
+    // It's not ok for the whole number to be empty.
+    if (jj == ii) {
+        throw "Invalid Number: " + expression.substr(ii);
     }
     var string = expression.substr(ii, jj-ii);
     return {'value': parseFloat(string),
@@ -115,9 +143,9 @@ function evaluate_addsub(expression, ii) {
             expression.charAt(result.position) == "-")) {
         var op = expression.charAt(result.position);
         var new_result = evaluate_multdiv(expression, result.position + 1);
-        if (expression.charAt(result.position) == "+") {
+        if (op == "+") {
             result.value += new_result.value;
-        } else if (expression.charAt(result.position) == "-") {
+        } else if (op == "-") {
             result.value -= new_result.value;
         }
         result.string = "(" + result.string + " " + op + " " + new_result.string + ")";
