@@ -29,7 +29,7 @@ function consumeDigits(expression, ii) {
 
 function evaluate_unsigned_number(expression, ii) {
     ii = consumeWhitespace(expression, ii);
-    if (!expression.charAt(jj).match("[1-9]")) {
+    if (!expression.charAt(ii).match("[1-9]")) {
         throw "Invalid Number: " + expression.substr(ii);
     }
     var jj = consumeDigits(expression, ii);
