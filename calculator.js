@@ -173,7 +173,7 @@ function evaluate(expression) {
 
 // -------------------------------------------------------------------- //
 
-addEventListener = function(el, type, fn) { 
+var addEventListener = function(el, type, fn) { 
     if (el.addEventListener) { 
         el.addEventListener(type, fn, false); 
         return true; 
@@ -185,7 +185,7 @@ addEventListener = function(el, type, fn) {
     } 
 };
 
-display = function(output) {
+var display = function(output) {
     var answers = document.getElementById("target");
     answers.innerHTML = "<pre>" + output + "</pre>";
 };
